@@ -13,6 +13,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import br.com.restfuljersey.model.bean.Banda;
 
@@ -40,22 +43,16 @@ public class BandaResource {
 	@Path("{id}")
 	@GET
 	@Produces("application/json")
-	public Banda getBanda(@PathParam("id")String obj){
-		Banda banda = null;
-		try {
-			int id = Integer.parseInt(obj);
-			banda = bandasMap.get(id);
-		} catch (Exception e) {
-			String name = (String) obj;
-			for(Banda b : bandasMap.values()){
-				if(b.getName().equals(name)){
-					banda = b;
-					break;
-				}
-			}
+	public Banda getBanda(@PathParam("id")int id){
+		Banda banda = bandasMap.get(id);
+		if(banda == null){
+			ResponseBuilder builder = Response.status(Response.Status.NOT_FOUND);
+		    builder.entity("{\"error\":\"not_found\"}");
+		    Response response = builder.build();
+		    throw new WebApplicationException(response);
 		}
-		
 		return banda;
+		
 	}
 	@GET
 	@Produces("application/json")
